@@ -1,0 +1,11 @@
+ipmiutil-wrapper.sln
+ipmiutil-wrapper.VC.db
+ipmiutil-wrapper.vcxproj
+ipmiutil-wrapper.vcxproj.filters
+ipmiutil-wrapper.vcxproj.user
+main.cpp
+.vs
+bin
+Debug
+obj
+readme
