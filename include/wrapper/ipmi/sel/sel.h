@@ -11,7 +11,7 @@ namespace sel {
 
 StatusCode get_sel_info(OUT SELInfo& sel_info);
 
-StatusCode get_log_entry(IN unsigned int rec_id, OUT SELEntry& sel_entry);
+StatusCode get_log_entry(IN unsigned short rec_id, OUT SELEntry& sel_entry);
 
 StatusCode clear_entries();
 

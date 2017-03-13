@@ -9,8 +9,8 @@ namespace sel{
 
 // SEL Entry
 typedef struct {
-	unsigned int next_rec_id;
-	unsigned int rec_id;
+	unsigned short next_rec_id;
+	unsigned short rec_id;
 	std::string timestamp;
 	int sensor_type;
 	int sensor_number;
