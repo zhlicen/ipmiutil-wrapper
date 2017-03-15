@@ -15,22 +15,29 @@ namespace constants {
 
 
 // Global consts
-typedef consts {
+consts Global {
 #ifndef DEBUG
 	CONST_CHAR(DEBUG_MODE, 0);
 #else
 	CONST_CHAR(DEBUG_MODE, 1);
 #endif
-} Global;
+};
 
 
 // Lan Option Keys
-typedef consts{
+consts LanOptionKeys {
 	CONST_CHAR(ADDRESS, 'N');
 	CONST_CHAR(USER_NAME, 'U');
 	CONST_CHAR(PASSWORD, 'P');
-} LanOptionKeys;
+};
 
+
+// SEL Strings
+consts SELStrings {
+	CONST_STR(SAPERATOR, ", ");
+	CONST_STR(ASSERTED, "Asserted");
+	CONST_STR(DEASSERTED, "Deasserted");
+} ;
 
 }
 }

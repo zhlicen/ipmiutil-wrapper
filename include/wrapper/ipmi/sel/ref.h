@@ -12,12 +12,12 @@ typedef struct {
 	unsigned short next_rec_id;
 	unsigned short rec_id;
 	std::string timestamp;
-	int sensor_type;
-	int sensor_number;
+	unsigned short sensor_type;
+	unsigned short sensor_number;
 	std::string message;
 	struct {
-		int type;
-		int offset;
+		unsigned short type;
+		unsigned short offset;
 	} event_entry;
 } SELEntry;
 

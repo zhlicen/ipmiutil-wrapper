@@ -2,8 +2,12 @@
 #include "wrapper/ipmi/constants/constants_dev.h"
 #include "wrapper/ipmi/sel/sel.h"
 #include "ipmiutil/util/ipmicmd.h"
+#include "wrapper/utils/sensor_table.h"
+#include "wrapper/utils/event_table.h"
 
+using namespace std;
 using namespace wrapper::ipmi;
+using namespace wrapper::utils;
 
 // ipmiutil implementation re-write
 namespace ipmiutil_rw {
@@ -32,7 +36,7 @@ extern "C" {
 	// [Re-write] Based on ipmiutil - isel.c - ClearSEL()
 	int clear_sel(void)
 	{ 
-		parse_lan_options('V', "4", 0); /*admin priv to clear*/
+		parse_lan_options('V', (char*)"4", 0); /*admin priv to clear*/
 		uchar responseData[MAX_BUFFER_SIZE];
 		int responseLength = MAX_BUFFER_SIZE;
 		int status;
@@ -80,6 +84,7 @@ extern "C" {
 	int get_sel_info(sel::SELInfo& sel_info)
 	{
 		uint vfree, vused, vtotal, vsize;
+		vsize = REC_SIZE;
 		uchar responseData[MAX_BUFFER_SIZE];
 		int responseLength = MAX_BUFFER_SIZE;
 		int status;
@@ -102,8 +107,8 @@ extern "C" {
 			get_time_str(responseData + 9, time_erase, sizeof(time_erase));
 			vtotal = vused + (vfree / vsize); // vsize from AllocationInfo
 			b = responseData[13];
-			if (b & 0x80) strb = " overflow"; /*SEL overflow occurred*/
-			else strb = "";
+			if (b & 0x80) strb = (char*)" overflow"; /*SEL overflow occurred*/
+			else strb = (char*)"";
 			if (b & 0x1) {         // Get SEL Allocation Info supported
 				status = ipmi_cmd(GET_SEL_ALLOCATION_INFO, inputData, 0,
 					responseData, &responseLength,
@@ -214,11 +219,60 @@ extern "C" {
 				memcpy(selRecord, &responseData[RECORD_BASE], 16);
 				sel_entry.next_rec_id = inRecordID;
 				sel_entry.rec_id = selRecord->record_id;
-				sel_entry.sensor_number = selRecord->sensor_number;
-				sel_entry.sensor_type = selRecord->sensor_type;
-				char time[20] = { 0 };
-				get_time_str((uchar*)&selRecord->timestamp, time, sizeof(time));
-				sel_entry.timestamp = time;
+				//non-OEM
+				if (selRecord->record_type < 0xc0) {
+			
+					
+					
+					sel_entry.sensor_number = selRecord->sensor_number;
+					sel_entry.sensor_type = selRecord->sensor_type;
+					char time[20] = { 0 };
+					get_time_str((uchar*)&selRecord->timestamp, time, sizeof(time));
+					sel_entry.timestamp = time;
+				
+					//event trigger byte[7] 0 - asserted 1 - deasserted
+					bool asserted = ((selRecord->event_trigger & 0x80) == 0);
+					//event type[6-4]
+					sel_entry.event_entry.type =
+						(int)(selRecord->event_trigger & 0x7F);
+					//event offset event_data1[3-0]
+					sel_entry.event_entry.offset =
+						(int)(selRecord->event_data1 & 0x0F);
+
+					//build message string
+					string sensor_name = "Unknown Sensor";
+					try {
+						sensor_name = 
+							SensorTable::get_instance()->look_up(sel_entry.sensor_type);
+					}
+					catch (...) {
+						printf("Unable to get sensor name for sensor 0x%02x\n", sel_entry.sensor_type);
+					}
+					sel_entry.message += sensor_name + " ";
+					sel_entry.message += std::to_string(sel_entry.sensor_number);
+					sel_entry.message += constants::SELStrings::SAPERATOR;
+					string event_desc = "Unknow Event";
+					unsigned int event = make_event(sel_entry.event_entry.type, sel_entry.event_entry.offset);
+					try {
+						event_desc =
+							EventTable::get_instance()->look_up(event);
+					}
+					catch (...) {
+						printf("Unable to get sensor name for event 0x%04x\n", event);
+					}
+					sel_entry.message += event_desc;
+					sel_entry.message += constants::SELStrings::SAPERATOR;
+					if (asserted) {
+						sel_entry.message += constants::SELStrings::ASSERTED;
+					}
+					else {
+						sel_entry.message += constants::SELStrings::DEASSERTED;
+					}
+				}
+				else {
+					sel_entry.timestamp = "0000-00-00T00:00:00";
+					sel_entry.message = "OEM";
+				}
 				//sel_entry.event_entry
 				if (rec_id == 0 || rec_id == selRecord->record_id)
 				{
@@ -244,6 +298,7 @@ extern "C" {
 				}
 			}
 		}
+		return status;
 	}
 }
 }
