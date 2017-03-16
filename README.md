@@ -8,5 +8,5 @@
 ## Status
 
 
-- Currently __ipmiutil_wrapper__ only implements interfaces needed for my own project
+- Currently __ipmiutil-wrapper__ only implements interfaces needed for my own project
 - Please feel free to fork and pull requests to make this library more useful
