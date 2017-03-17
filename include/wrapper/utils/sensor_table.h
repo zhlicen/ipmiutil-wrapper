@@ -57,6 +57,9 @@ public:
 		add(ipmi::constants::SensorTypes::LAN, "LAN");
 		add(ipmi::constants::SensorTypes::ManagementSubsystemHealth, "Management Subsystem Health");
 		add(ipmi::constants::SensorTypes::Battery, "Battery");
+		add(ipmi::constants::SensorTypes::SessionAudit, "Session Audit");
+		add(ipmi::constants::SensorTypes::VersionChange, "Version Change");
+		add(ipmi::constants::SensorTypes::FRUState, "FRU State");
 	}
 };
 

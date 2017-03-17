@@ -122,8 +122,11 @@ extern "C" {
 				}
 			}
 
-			printf("SEL %s Size = %d records (Used=%d, Free=%d)\n",
-				strb, vtotal, vused, vfree / vsize);
+			if (constants::Global::DEBUG_MODE) {
+				printf("SEL %s Size = %d records (Used=%d, Free=%d)\n",
+					strb, vtotal, vused, vfree / vsize);
+			}
+
 			sel_info.total_count = vtotal;
 			sel_info.used_count = vused;
 			sel_info.last_addition_timestamp = time_add;
@@ -220,10 +223,7 @@ extern "C" {
 				sel_entry.next_rec_id = inRecordID;
 				sel_entry.rec_id = selRecord->record_id;
 				//non-OEM
-				if (selRecord->record_type < 0xc0) {
-			
-					
-					
+				if (selRecord->record_type < 0xc0) {			
 					sel_entry.sensor_number = selRecord->sensor_number;
 					sel_entry.sensor_type = selRecord->sensor_type;
 					char time[20] = { 0 };
@@ -234,11 +234,11 @@ extern "C" {
 					bool asserted = ((selRecord->event_trigger & 0x80) == 0);
 					//event type[6-4]
 					sel_entry.event_entry.type =
-						(int)(selRecord->event_trigger & 0x7F);
+						(uchar)(selRecord->event_trigger & 0x7F);
 					//event offset event_data1[3-0]
 					sel_entry.event_entry.offset =
-						(int)(selRecord->event_data1 & 0x0F);
-
+						(uchar)(selRecord->event_data1 & 0x0F);
+					sel_entry.asserted = asserted;
 					//build message string
 					string sensor_name = "Unknown Sensor";
 					try {
@@ -253,13 +253,24 @@ extern "C" {
 					sel_entry.message += constants::SELStrings::SAPERATOR;
 					string event_desc = "Unknow Event";
 					unsigned int event = make_event(sel_entry.event_entry.type, sel_entry.event_entry.offset);
+					// Sensor Specific
+					if (sel_entry.event_entry.type == 0x6f) {
+						event = make_sensor_specific_event(sel_entry.sensor_type, 
+							sel_entry.event_entry.type,
+							sel_entry.event_entry.offset);
+					}
+
 					try {
 						event_desc =
 							EventTable::get_instance()->look_up(event);
 					}
 					catch (...) {
-						printf("Unable to get sensor name for event 0x%04x\n", event);
+						if (sel_entry.event_entry.type >= 0x70) {
+							event_desc = "OEM";
+						}
+						printf("Unable to get event name for event 0x%04x\n", event);
 					}
+					
 					sel_entry.message += event_desc;
 					sel_entry.message += constants::SELStrings::SAPERATOR;
 					if (asserted) {

@@ -85,6 +85,9 @@ consts SensorTypes {
 	CONST_USHORT(LAN, 0x27);
 	CONST_USHORT(ManagementSubsystemHealth, 0x28);
 	CONST_USHORT(Battery, 0x29);
+	CONST_USHORT(SessionAudit, 0x2A);
+	CONST_USHORT(VersionChange, 0x2B);
+	CONST_USHORT(FRUState, 0x2C);
 };
 
 }

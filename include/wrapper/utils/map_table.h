@@ -15,7 +15,6 @@ class MapTable {
 public:
 	using ThisClass = MapTable<KEY, VAL, REGISTER>;
 	using AddFunc = std::function<void(const KEY&, const VAL&)>;
-
 	static ThisClass* get_instance() {
 		std::lock_guard<std::recursive_mutex> lock(m_mutex_instance);
 		static MapTable *table = NULL;
@@ -23,6 +22,11 @@ public:
 			table = new ThisClass;
 		}
 		return table;
+	}
+
+	// Load value from file - not implemented.
+	virtual void Load(const std::string& file) {
+		throw std::runtime_error("Not Implemented");
 	}
 
 	VAL look_up(const KEY& key) const {
@@ -39,7 +43,7 @@ protected:
 		register_vals();
 	}
 
-	~MapTable() {
+	virtual ~MapTable() {
 	}
 
 	void add_val(const KEY& key, const VAL& val) {

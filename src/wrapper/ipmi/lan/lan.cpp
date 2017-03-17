@@ -9,6 +9,10 @@ void lan::config_lan_option(OUT const lan::LanOption& lan_opt) {
 		NON_CONST_CHAR(lan_opt.ip.c_str()), 
 		constants::Global::DEBUG_MODE);
 
+	parse_lan_options(constants::LanOptionKeys::PORT,
+		NON_CONST_CHAR(lan_opt.port.c_str()),
+		constants::Global::DEBUG_MODE);
+
 	parse_lan_options(constants::LanOptionKeys::USER_NAME,
 		NON_CONST_CHAR(lan_opt.usr.c_str()),
 		constants::Global::DEBUG_MODE);

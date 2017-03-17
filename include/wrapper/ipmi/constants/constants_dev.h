@@ -27,6 +27,7 @@ consts Global {
 // Lan Option Keys
 consts LanOptionKeys {
 	CONST_CHAR(ADDRESS, 'N');
+	CONST_CHAR(PORT, 'p');
 	CONST_CHAR(USER_NAME, 'U');
 	CONST_CHAR(PASSWORD, 'P');
 };

@@ -10,6 +10,7 @@ namespace lan{
 
 typedef struct {
 	std::string ip;
+	std::string port;
 	std::string usr;
 	std::string pwd;
 } LanOption;

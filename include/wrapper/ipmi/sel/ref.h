@@ -15,9 +15,10 @@ typedef struct {
 	unsigned short sensor_type;
 	unsigned short sensor_number;
 	std::string message;
+	bool asserted{false};
 	struct {
-		unsigned short type;
-		unsigned short offset;
+		unsigned char type;
+		unsigned char offset;
 	} event_entry;
 } SELEntry;
 
