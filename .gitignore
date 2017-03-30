@@ -50,3 +50,4 @@ obj/x64/Debug/-1138833062.CopySourcesUpToDateFile.tlog
 .vs/ipmiutil-wrapper/v15/Browse.VC.db
 *.suo
 x64/Debug/vc141.idb
+src/wrapper/ipmi/CMakeLists.txt
