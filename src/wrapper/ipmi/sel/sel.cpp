@@ -4,6 +4,9 @@
 #include "ipmiutil/util/ipmicmd.h"
 #include "wrapper/utils/sensor_table.h"
 #include "wrapper/utils/event_table.h"
+#include "wrapper/utils/ipmiutil_lock.h"
+#include "wrapper/ipmi/lan/lan.h"
+
 
 using namespace std;
 using namespace wrapper::ipmi;
@@ -16,6 +19,14 @@ extern "C" {
 	#include <time.h>
 	#include <string.h>
 	#define MAX_BUFFER_SIZE        255
+
+	// Declaration
+	void fmt_time(time_t etime, char *buf, int bufsz);
+	void get_time_str(uchar *time_bytes, char *buf, int bufsz);
+	int clear_sel(void);
+	int get_sel_info(sel::SELInfo& sel_info);
+	int read_sel_entry(unsigned short rec_id, sel::SELEntry& sel_entry);
+
 
 	// [Re-use] Based on ipmiutil - ievents.c - fmt_time()
 	void fmt_time(time_t etime, char *buf, int bufsz) {
@@ -35,8 +46,7 @@ extern "C" {
 
 	// [Re-write] Based on ipmiutil - isel.c - ClearSEL()
 	int clear_sel(void)
-	{ 
-		parse_lan_options('V', (char*)"4", 0); /*admin priv to clear*/
+	{ 	
 		uchar responseData[MAX_BUFFER_SIZE];
 		int responseLength = MAX_BUFFER_SIZE;
 		int status;
@@ -91,7 +101,7 @@ extern "C" {
 		uchar completionCode;
 		uchar inputData[6];
 		uchar b;
-		char *strb;
+		const char *strb;
 		char time_add[20] = { 0 };
 		char time_erase[20] = { 0 };
 
@@ -107,8 +117,8 @@ extern "C" {
 			get_time_str(responseData + 9, time_erase, sizeof(time_erase));
 			vtotal = vused + (vfree / vsize); // vsize from AllocationInfo
 			b = responseData[13];
-			if (b & 0x80) strb = (char*)" overflow"; /*SEL overflow occurred*/
-			else strb = (char*)"";
+			if (b & 0x80) strb = " overflow"; /*SEL overflow occurred*/
+			else strb = "";
 			if (b & 0x1) {         // Get SEL Allocation Info supported
 				status = ipmi_cmd(GET_SEL_ALLOCATION_INFO, inputData, 0,
 					responseData, &responseLength,
@@ -249,7 +259,7 @@ extern "C" {
 						printf("Unable to get sensor name for sensor 0x%02x\n", sel_entry.sensor_type);
 					}
 					sel_entry.message += sensor_name + " ";
-					sel_entry.message += std::to_string(sel_entry.sensor_number);
+					sel_entry.message += std::to_string((int)sel_entry.sensor_number);
 					sel_entry.message += constants::SELStrings::SAPERATOR;
 					string event_desc = "Unknow Event";
 					unsigned int event = make_event(sel_entry.event_entry.type, sel_entry.event_entry.offset);
@@ -270,7 +280,7 @@ extern "C" {
 						}
 						printf("Unable to get event name for event 0x%04x\n", event);
 					}
-					
+					sel_entry.event_entry.entry_code_string = event_desc;
 					sel_entry.message += event_desc;
 					sel_entry.message += constants::SELStrings::SAPERATOR;
 					if (asserted) {
@@ -317,17 +327,24 @@ extern "C" {
 
 
 
-StatusCode sel::get_sel_info(OUT SELInfo& sel_info) {
+StatusCode sel::get_sel_info(IN const lan::LanOption& lan_opt, OUT SELInfo& sel_info) {
+	COMMAND_LOCK
+	lan::config_lan_option(lan_opt);
 	return ipmiutil_rw::get_sel_info(sel_info);
 }
 
 
-StatusCode sel::get_log_entry(IN unsigned short rec_id, OUT SELEntry& sel_entry) {
+StatusCode sel::get_log_entry(IN const lan::LanOption& lan_opt, 
+	IN unsigned short rec_id, OUT SELEntry& sel_entry) {
+	COMMAND_LOCK
+	lan::config_lan_option(lan_opt);
 	return ipmiutil_rw::read_sel_entry(rec_id, sel_entry);
 }
 
 
 
-StatusCode sel::clear_entries() {
+StatusCode sel::clear_entries(IN const lan::LanOption& lan_opt) {
+	COMMAND_LOCK
+	lan::config_lan_option(lan_opt);
 	return ipmiutil_rw::clear_sel();
 }
