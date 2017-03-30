@@ -8,11 +8,6 @@
 namespace wrapper {
 namespace utils {
 
-unsigned int make_event(unsigned char event_type, unsigned char event_offset);
-unsigned int make_sensor_specific_event(unsigned short sensor_type, 
-	unsigned char event_type, unsigned char event_offset);
-
-
 // Generic
 unsigned int make_event(unsigned char event_type, unsigned char event_offset) {
 	unsigned int event = event_type;
@@ -22,13 +17,12 @@ unsigned int make_event(unsigned char event_type, unsigned char event_offset) {
 }
 
 // Sensor Specific
-unsigned int make_sensor_specific_event(unsigned short sensor_type, 
-	unsigned char event_type, unsigned char event_offset) {
+unsigned int make_sensor_specific_event(unsigned short sensor_type, unsigned char event_type, unsigned char event_offset) {
 	unsigned int event = sensor_type;
 	event = (unsigned int) event  << 16;
 	unsigned short event_body = event_type;
-	event_body = (unsigned short)(event_body << 8);
-	event_body = (unsigned short)(event_body + event_offset);
+	event_body = (unsigned short)event_body << 8;
+	event_body += event_offset;
 	event += event_body;
 	return event;
 }
@@ -186,7 +180,7 @@ public:
 			0x6f, 0x05), "Configuration Error");
 		add(make_sensor_specific_event(
 			ipmi::constants::SensorTypes::Processor,
-			0x6f, 0x06), "SM BIOS Uncorrectable CPU-complex Error");
+			0x6f, 0x06), "SM BIOS ¡®Uncorrectable CPU-complex Error");
 		add(make_sensor_specific_event(
 			ipmi::constants::SensorTypes::Processor,
 			0x6f, 0x07), "Processor Presence detected");
@@ -290,7 +284,7 @@ public:
 			0x6f, 0x00), "Correctable Memory Error Logging Disabled");
 		add(make_sensor_specific_event(
 			ipmi::constants::SensorTypes::SELDisabled,
-			0x6f, 0x01), "Event Type Logging Disabled");
+			0x6f, 0x01), "Event ¡®Type¡¯ Logging Disabled");
 		add(make_sensor_specific_event(
 			ipmi::constants::SensorTypes::SELDisabled,
 			0x6f, 0x02), "Log Area Reset/Cleared");
@@ -493,22 +487,22 @@ public:
 
 		add(make_sensor_specific_event(
 			ipmi::constants::SensorTypes::ACPIPowerState,
-			0x6f, 0x00), "S0 / G0 working");
+			0x6f, 0x00), "S0 / G0 ¡°working¡±");
 		add(make_sensor_specific_event(
 			ipmi::constants::SensorTypes::ACPIPowerState,
-			0x6f, 0x01), "S1 sleeping with system h/w & processor context maintained");
+			0x6f, 0x01), "S1 ¡°sleeping with system h/w & processor context maintained¡±");
 		add(make_sensor_specific_event(
 			ipmi::constants::SensorTypes::ACPIPowerState,
-			0x6f, 0x02), "S2 sleeping, processor context lost");
+			0x6f, 0x02), "S2 ¡°sleeping, processor context lost");
 		add(make_sensor_specific_event(
 			ipmi::constants::SensorTypes::ACPIPowerState,
-			0x6f, 0x03), "S3 sleeping, processor & h/w context lost, memory retained.");
+			0x6f, 0x03), "S3 ¡°sleeping, processor & h/w context lost, memory retained.");
 		add(make_sensor_specific_event(
 			ipmi::constants::SensorTypes::ACPIPowerState,
-			0x6f, 0x04), "S4 non-volatile sleep / suspend-to disk");
+			0x6f, 0x04), "S4 ¡°non-volatile sleep / suspend-to disk");
 		add(make_sensor_specific_event(
 			ipmi::constants::SensorTypes::ACPIPowerState,
-			0x6f, 0x05), "S5 / G2 soft-off");
+			0x6f, 0x05), "S5 / G2 ¡°soft-off¡±");
 		add(make_sensor_specific_event(
 			ipmi::constants::SensorTypes::ACPIPowerState,
 			0x6f, 0x06), "S4 / S5 soft-off, particular S4 / S5 state cannot be determined");
