@@ -25,7 +25,7 @@ public:
 	}
 
 	// Load value from file - not implemented.
-	virtual void Load(const std::string& file) {
+	virtual void Load(const std::string& /*file*/) {
 		throw std::runtime_error("Not Implemented");
 	}
 
@@ -57,13 +57,13 @@ protected:
 		REGISTER regiter(add_func);
 	}
 protected:
-	std::map<KEY, VAL> m_data;
-	mutable std::recursive_mutex m_mutex_data;
+	std::map<KEY, VAL> m_data{};
+	mutable std::recursive_mutex m_mutex_data{};
 	static std::recursive_mutex m_mutex_instance;
 };
 
 template<typename KEY, typename VAL, typename REGISTER>
-std::recursive_mutex MapTable<KEY, VAL, REGISTER>::m_mutex_instance;
+std::recursive_mutex MapTable<KEY, VAL, REGISTER>::m_mutex_instance{};
 
 }
 }

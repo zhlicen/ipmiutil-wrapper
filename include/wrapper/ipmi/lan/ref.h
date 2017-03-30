@@ -7,14 +7,20 @@ namespace wrapper {
 namespace ipmi {
 namespace lan{
 
-
-typedef struct {
+extern "C" {
+	
+typedef struct lanOption{
+	bool operator==(const lanOption& other){
+		return (other.ip == ip && other.port == port 
+		&& other.usr == usr && other.pwd == pwd);
+	}
 	std::string ip;
 	std::string port;
 	std::string usr;
 	std::string pwd;
 } LanOption;
 
+}
 
 }
 }
